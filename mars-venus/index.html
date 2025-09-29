@@ -411,6 +411,12 @@
       } catch(e){ setErr('Invalid observer values: ' + e.message); }
     }
 
+    async function fetchTimezoneForInputs() {
+      // No-op: we set tz directly now
+      return document.getElementById('tz').value || 'UTC';
+    }
+
+<!--
     async function fetchTimezoneForInputs(silent=true){
       const lat = parseFloat($('lat').value);
       const lon = parseFloat($('lon').value);
@@ -435,6 +441,7 @@
         if (!silent) setErr('Timezone lookup failed; using browser timezone.');
       }
     }
+-->
 
     function setInputsFromPreset(name){
       const p = PRESETS[name]; if (!p) return;
@@ -492,11 +499,29 @@
     function tickPartsInZone(ms,tz){const d=new Date(ms);const fmt=new Intl.DateTimeFormat(undefined,{timeZone:tz,year:'2-digit',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false});const parts=fmt.formatToParts(d);const get=(t)=>(parts.find(p=>p.type===t)||{}).value||'';return [`${get('year')}-${get('month')}-${get('day')}`,`${get('hour')}:${get('minute')}`];}
     function useObserverTz(){return $('chk-use-obs-tz')?.checked;}
     function tickPartsForMode(ms){const tz=useObserverTz()?(observerTz||Intl.DateTimeFormat().resolvedOptions().timeZone):'UTC';return tickPartsInZone(ms,tz);}
-    const PRESETS={brisbane:{lat:-27.4698,lon:153.0251,elev:50},phoenix:{lat:33.4484,lon:-112.0740,elev:331},kincardine:{lat:44.1838078,lon:-81.6384156,elev:'auto'},waterloo:{lat:43.47321866,lon:-80.53587863,elev:'auto'},scottsdale:{lat:33.63719972,lon:-111.92482642,elev:'auto'},toronto:{lat:43.64603472,lon:-79.38138754,elev:'auto'}};
+    const const PRESETS = {
+  brisbane:  { name:'Brisbane, QLD, AU',   lat:-27.4698, lon:153.0251, elev: 27, tz:'Australia/Brisbane' },
+  phoenix:   { name:'Phoenix, AZ, USA',     lat: 33.4484, lon:-112.0740, elev: 331, tz:'America/Phoenix' },
+  scottsdale:{ name:'Scottsdale, AZ, USA',  lat: 33.6372, lon:-111.9248, elev: 390, tz:'America/Phoenix' },
+  toronto:   { name:'Toronto, ON, CA',      lat: 43.6460, lon: -79.3814, elev:  76, tz:'America/Toronto' },
+  waterloo:  { name:'Waterloo, ON, CA',     lat: 43.4732, lon: -80.5359, elev: 329, tz:'America/Toronto' },
+  kincardine:{ name:'Kincardine, ON, CA',   lat: 44.1838, lon: -81.6384, elev: 182, tz:'America/Toronto' },
+};
+
 
     function updateObserverFromInputs(){try{const lat=parseFloat($('lat').value);const lon=parseFloat($('lon').value);let elev=parseFloat($('elev').value);if(!Number.isFinite(elev))elev=0;observer=new Astronomy.Observer(lat,lon,elev);}catch(e){setErr('Invalid observer values: '+e.message);}}
     async function fetchTimezoneForInputs(silent=true){const lat=parseFloat($('lat').value);const lon=parseFloat($('lon').value);if(!Number.isFinite(lat)||!Number.isFinite(lon)){if(!silent)setErr('Enter valid latitude/longitude for timezone lookup.');return;}try{const url='https://api.geotimezone.com/public/timezone?latitude='+encodeURIComponent(lat)+'&longitude='+encodeURIComponent(lon);const resp=await fetch(url);if(!resp.ok)throw new Error('HTTP '+resp.status);const data=await resp.json();if(data&&data.iana_timezone){observerTz=data.iana_timezone;observerTzLabel=observerTz;}else{throw new Error('No IANA timezone in response');}}catch(e){observerTz=Intl.DateTimeFormat().resolvedOptions().timeZone;observerTzLabel=observerTz+' (browser fallback)';if(!silent)setErr('Timezone lookup failed; using browser timezone.');}}
-    function setInputsFromPreset(name){const p=PRESETS[name];if(!p)return;$('lat').value=p.lat;$('lon').value=p.lon;if(p.elev==='auto'){$('elev').value='';fetchElevationForInputs(true);}else{$('elev').value=p.elev;}updateObserverFromInputs();fetchTimezoneForInputs(true);compute();}
+
+function setInputsFromPreset(presetKey) {
+  const p = PRESETS[presetKey];
+  latInput.value  = p.lat;
+  lonInput.value  = p.lon;
+  elevInput.value = p.elev;
+  tzInput.value   = p.tz;   // <- set directly
+  // remove/disable: await fetchTimezoneForInputs(...)
+  compute(); // or replotAll()
+}
+
 
     function vecToRaDec(v){const rxy=Math.hypot(v.x,v.y);let ra=Math.atan2(v.y,v.x);if(ra<0)ra+=2*Math.PI;const dec=Math.atan2(v.z,rxy);return{raHours:ra*12/Math.PI,decDeg:dec*180/Math.PI};}
     function angleFromRaDec(ra1h,dec1d,ra2h,dec2d){const ra1=ra1h*Math.PI/12,ra2=ra2h*Math.PI/12,d1=dec1d*Math.PI/180,d2=dec2d*Math.PI/180;const x1=Math.cos(d1)*Math.cos(ra1),y1=Math.cos(d1)*Math.sin(ra1),z1=Math.sin(d1);const x2=Math.cos(d2)*Math.cos(ra2),y2=Math.cos(d2)*Math.sin(ra2),z2=Math.sin(d2);const dot=Math.max(-1,Math.min(1,x1*x2+y1*y2+z1*z2));return Math.acos(dot)*180/Math.PI;}
@@ -765,19 +790,21 @@
       finally{ btn.disabled=false; btn.textContent=old; }
     }
 
-    function useCurrentLocation(){
-      setErr('');
-      if(!('geolocation' in navigator)){ setErr('Geolocation not supported in this browser.'); return; }
-      const btn=$('btn-my-location'); const old=btn.textContent; btn.disabled=true; btn.textContent='Locating...';
-      navigator.geolocation.getCurrentPosition(async (pos)=>{
-        try{
-          const lat=pos.coords.latitude, lon=pos.coords.longitude;
-          $('preset').value='custom'; $('lat').value=lat.toFixed(6); $('lon').value=lon.toFixed(6);
-          $('elev').value=''; await fetchElevationForInputs(true);
-          updateObserverFromInputs(); await fetchTimezoneForInputs(true); compute();
-        } finally { btn.disabled=false; btn.textContent=old; }
-      }, (err)=>{ setErr('Geolocation error: '+err.message); btn.disabled=false; btn.textContent=old; }, {enableHighAccuracy:true,timeout:10000,maximumAge:30000});
+    async function useCurrentLocation() {
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        latInput.value = latitude.toFixed(6);
+        lonInput.value = longitude.toFixed(6);
+        // Keep your elevation fetch if you want; timezone from device:
+        tzInput.value = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+        compute();
+      }, (err) => {
+        // Fallback if user blocks geolocation:
+        tzInput.value = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+        compute();
+      });
     }
+
 
     function setLegendTime(){ $('legend-time').innerHTML='Angle: <span class="min">Min</span>, <span class="max">Max</span> &nbsp;|&nbsp; Distance: <span class="min-dist">Min</span>, <span class="max-dist">Max</span> &nbsp;|&nbsp; <span class="now">Current Time</span>'; }
     function setLegendScatter(){
@@ -883,6 +910,3 @@
   </script>
 </body>
 </html>
-
-
-
