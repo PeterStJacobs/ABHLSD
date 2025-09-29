@@ -499,7 +499,7 @@
     function tickPartsInZone(ms,tz){const d=new Date(ms);const fmt=new Intl.DateTimeFormat(undefined,{timeZone:tz,year:'2-digit',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false});const parts=fmt.formatToParts(d);const get=(t)=>(parts.find(p=>p.type===t)||{}).value||'';return [`${get('year')}-${get('month')}-${get('day')}`,`${get('hour')}:${get('minute')}`];}
     function useObserverTz(){return $('chk-use-obs-tz')?.checked;}
     function tickPartsForMode(ms){const tz=useObserverTz()?(observerTz||Intl.DateTimeFormat().resolvedOptions().timeZone):'UTC';return tickPartsInZone(ms,tz);}
-    const const PRESETS = {
+    const PRESETS = {
   brisbane:  { name:'Brisbane, QLD, AU',   lat:-27.4698, lon:153.0251, elev: 27, tz:'Australia/Brisbane' },
   phoenix:   { name:'Phoenix, AZ, USA',     lat: 33.4484, lon:-112.0740, elev: 331, tz:'America/Phoenix' },
   scottsdale:{ name:'Scottsdale, AZ, USA',  lat: 33.6372, lon:-111.9248, elev: 390, tz:'America/Phoenix' },
@@ -910,3 +910,4 @@ function setInputsFromPreset(presetKey) {
   </script>
 </body>
 </html>
+
