@@ -789,7 +789,7 @@
     document.addEventListener('DOMContentLoaded', async ()=>{
       // Robust Back button
       (function(){
-        var a=$('back');
+        var a=$('backLink');
         if(location.protocol==='http:'||location.protocol==='https:'){ a.href='https://abhlsd.com/index.html'; }
         else { a.href='../index.html'; }
       })();
@@ -874,7 +874,8 @@
   <script>
       document.addEventListener('DOMContentLoaded', () => {
       const el = document.getElementById('backLink') 
-                 || document.getElementById('back');   // also support old id
+                 || document.getElementById('back')
+		         || document.querySelector('.btn-back');   // also support old id
       if (!el) return;                                // guard: avoids that error
       const isFile = location.protocol === 'file:';
       el.href = isFile ? '../index.html' : '/';       // local vs Netlify
@@ -882,5 +883,6 @@
   </script>
 </body>
 </html>
+
 
 
