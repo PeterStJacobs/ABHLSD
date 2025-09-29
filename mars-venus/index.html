@@ -870,5 +870,16 @@
     });
   })();
   </script>
+  
+  <script>
+      document.addEventListener('DOMContentLoaded', () => {
+      const el = document.getElementById('backLink') 
+                 || document.getElementById('back');   // also support old id
+      if (!el) return;                                // guard: avoids that error
+      const isFile = location.protocol === 'file:';
+      el.href = isFile ? '../index.html' : '/';       // local vs Netlify
+      });
+  </script>
 </body>
 </html>
+
