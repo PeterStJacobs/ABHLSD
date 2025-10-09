@@ -7,28 +7,28 @@
 
 <!-- Social / share preview -->
 <meta property="og:title" content="ABHLSD">
-<meta property="og:description" content="Aussie • Bear • Loves • Lady • Star • Dust">
+<meta property="og:description" content="Advanced • Business • Heuristics • for Lifecycle • and System • Design">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://abhlsd.com/">
 <meta property="og:image" content="https://abhlsd.com/ABHLSD-OG.jpg">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="ABHLSD">
-<meta name="twitter:description" content="Aussie • Bear • Loves • Lady • Star • Dust">
+<meta name="twitter:description" content="Advanced • Business • Heuristics • for Lifecycle • and System • Design">
 <meta name="twitter:image" content="https://abhlsd.com/ABHLSD-OG.jpg">
 
 <title>ABHLSD</title>
 
-<!-- Cursive font for tooltips -->
+<!-- Tooltip font -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Calibri&display=swap" rel="stylesheet">
 
 <!-- Favicon / icons -->
 <link rel="icon" type="image/png" sizes="32x32" href="assets/ABHLSD-favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="assets/ABHLSD-favicon-16.png">
 <link rel="apple-touch-icon" href="assets/ABHLSD-apple-touch-icon.png">
-<link rel="icon" href="assets/ABHLSD-favicon-32.png"> <!-- fallback -->
+<link rel="icon" href="assets/ABHLSD-favicon-32.png">
 <meta name="theme-color" content="#002D89">
 
 <style>
@@ -38,14 +38,13 @@
     font: 16px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     color: #e8ecff;
     overflow: hidden;
-    background: var(--pageBg);   /* NEW */
+    background: var(--pageBg);
   }
 
-  /* Inset from window edges so the image never “kisses” the sides */
   :root{
-    --padX: 2vw;       /* horizontal inset */
-    --padY: 2vh;       /* vertical inset   */
-    --pageBg: #002D89; /* Page Background Colour */
+    --padX: 2vw;
+    --padY: 2vh;
+    --pageBg: #002D89;
   }
 
   /* ---------- Stage holds both the image and overlay ---------- */
@@ -55,27 +54,26 @@
     bottom: var(--padY);
     left: var(--padX);
     right: var(--padX);
-    background: var(--pageBg);       /* shows behind letterbox bars, if any */
+    background: var(--pageBg);
   }
 
   /* The image fills the stage but keeps full aspect (no cropping) */
   .bg{
     position: absolute; inset: 0;
     width: 100%; height: 100%;
-    object-fit: contain;       /* << keeps whole image visible */
+    object-fit: contain;
     object-position: center;
     user-select: none; -webkit-user-drag: none;
   }
 
-  /* The hotspot overlay is absolutely positioned to the image's drawn rect.
-     JS sets its left/top/width/height so it exactly matches the pixels the image occupies. */
+  /* Hotspot overlay matches the drawn image rect */
   .hotspots{
     position: absolute;
     /* left/top/width/height set by JS in layout() */
-    pointer-events: none;   /* tooltips only on the child buttons */
+    pointer-events: none;   /* only children receive pointer */
   }
 
-  /* ---------- Invisible hotspots with tooltips ---------- */
+  /* ---------- Invisible hotspots with tooltips (DEFAULT – letters) ---------- */
   .spot{
     position: absolute;
     background: transparent;
@@ -83,26 +81,26 @@
     padding: 0;
     cursor: help;
     outline: none;
-    pointer-events: auto;    /* enable pointer for each button */
-    color: transparent; font-size: 0;  /* no visible text */
+    pointer-events: auto;
+    color: transparent; font-size: 0;
   }
   .spot:focus-visible { outline: 2px solid rgba(122,162,255,.9); border-radius: 8px; }
 
-  /* Tooltip bubble (uses per-spot --clr variable) */
+  /* Default tooltip bubble (for letters) */
   .spot::after{
     content: attr(data-tt);
     position: absolute;
     left: 50%;
     bottom: 110%;
     transform: translateX(-50%) translateY(6px);
-    background: var(--pageBg);   /* was rgba(10,15,30,.92) */
+    background: var(--pageBg);
     color: var(--clr, #e8ecff);
     padding: 8px 10px;
     border-radius: 10px;
-    font-family: "Great Vibes", cursive;
+    font-family: "Calibri";
     font-size: clamp(18px, 3.5vw, 34px);
     white-space: nowrap;
-    box-shadow: none;            /* optional: remove glow, was box-shadow: 0 10px 26px rgba(0,0,0,.45); */    
+    box-shadow: none;
     opacity: 0;
     pointer-events: none;
     transition: opacity .15s ease, transform .15s ease;
@@ -114,113 +112,152 @@
     bottom: 108%;
     transform: translateX(-50%);
     border: 7px solid transparent;
-    border-top-color: var(--pageBg);   /* was rgba(10,15,30,.92) */
+    border-top-color: var(--pageBg);
     opacity: 0;
     transition: opacity .15s ease;
   }
   .spot:hover::after, .spot:hover::before,
-  .spot:focus::after, .spot:focus::before{
-    opacity: 1;
-  }
-  .spot:hover::after, .spot:focus::after{
-    transform: translateX(-50%) translateY(0);
-  }
+  .spot:focus::after, .spot:focus::before{ opacity: 1; }
+  .spot:hover::after, .spot:focus::after{ transform: translateX(-50%) translateY(0); }
 
   /* Show tooltip when a hotspot is “active” (for tap) */
-  .spot.active::after,
-  .spot.active::before { opacity: 1; }
+  .spot.active::after, .spot.active::before { opacity: 1; }
+  .spot.active::after { transform: translateX(-50%) translateY(0); }
 
-  .spot.active::after {
-    transform: translateX(-50%) translateY(0);
-  }
-
-  /* Tooltip colours (tweak to match the artwork) */
+  /* Tooltip colours */
   :root{
-    --clr-a: #FFFF00;   /* A  → Aussie  (yellow) */
-    --clr-b: #ED7D31;   /* B  → Bear    (orange) */
-    --clr-heart: #FF0000; /* ♥ → Loves   (red) */
-    --clr-l: #00B050;   /* L  → Lady    (green) */
-    --clr-s: #00B0F0;   /* S  → Star    (blue) */
-    --clr-d: #7030A0;   /* D  → Dust    (violet) */
+    --clr-a: #FFFF00;   /* A  → Advanced   */
+    --clr-b: #ED7D31;   /* B  → Business   */
+    --clr-heart: #FF0000; /* H → Heuristics */
+    --clr-l: #00B050;   /* L  → Lifecycle  */
+    --clr-s: #00B0F0;   /* S  → System     */
+    --clr-d: #7030A0;   /* D  → Design     */
+    --clr-w: #FFFF00;   /* W  → www label  */
   }
 
-  /* ---------- Hotspot positions as % of the *image* (not the window) ---------- */
-  /* Adjust these until they sit over your letters—DevTools makes it easy. */
+  /* ---------- Hotspot positions (as % of image) ---------- */
+  .spot-a     { --clr: var(--clr-a);     top: 5%; left:  0%; width: 18%; height: 80%; }
+  .spot-b     { --clr: var(--clr-b);     top: 5%; left: 19%; width: 18%; height: 80%; }
+  .spot-heart { --clr: var(--clr-heart); top: 5%; left: 38%; width: 15%; height: 80%; }
+  .spot-l     { --clr: var(--clr-l);     top: 5%; left: 52%; width: 13%; height: 80%; }
+  .spot-s     { --clr: var(--clr-s);     top: 5%; left: 65%; width: 13%; height: 80%; }
+  .spot-d     { --clr: var(--clr-d);     top: 5%; left: 78%; width: 15%; height: 80%; }
 
-  /* A */
-  .spot-a{
-    --clr: var(--clr-a);
-    top: 38%; left: 0%;
-    width: 18%; height: 24%;
+  /* ---------- SPECIAL: separate rollover rule for “ABHLSD.com” (motto) ---------- */
+  .spot-motto{
+    --clr: var(--clr-w);
+    top: 90%; left: 0%;
+    width: 15%; height: 10%;
+    cursor: pointer;                 /* it's a link */
   }
-  /* B (first B) */
-  .spot-b{
-    --clr: var(--clr-b);
-    top: 38%; left: 19%;
-    width: 18%; height: 24%;
-  }
-  /* Heart (H → Loves) */
-  .spot-heart{
-    --clr: var(--clr-heart);
-    top: 38%; left: 38%;
-    width: 15%; height: 24%;
-  }
-  /* L */
-  .spot-l{
-    --clr: var(--clr-l);
-    top: 38%; left: 52%;
-    width: 13%; height: 24%;
-  }
-  /* S */
-  .spot-s{
-    --clr: var(--clr-s);
-    top: 38%; left: 65%;
-    width: 13%; height: 24%;
-  }
-  /* D */
-  .spot-d{
-    --clr: var(--clr-d);
-    top: 38%; left: 78%;
-    width: 15%; height: 24%;
+  
+  /* One-line banner to the RIGHT of the URL */
+  .spot-motto::after{
+    content: attr(data-tt);
+    position: absolute;
+    top: 50%;
+    left: calc(100% + 12px);
+    transform: translateY(-50%);
+    /* background: #081f5c;            <-- remove */
+    background: transparent;           /* NEW: float text, no panel */
+    color: #ffe600;
+    padding: 0;                         /* NEW: no padding since no panel */
+    border-radius: 0;                   /* NEW */
+    font-family: "Calibri";
+    font-size: clamp(14px, 2.2vw, 22px);
+    white-space: nowrap;
+    line-height: 1.2;
+    /* box-shadow: 0 8px 20px rgba(0,0,0,.35);  <-- remove */
+    text-shadow: 0 0 6px rgba(0,0,0,.25);      /* NEW: gentle legibility lift */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease, transform .25s ease;
+    max-width: none;
   }
 
-  /* ---------- Button to the Mars–Venus page ---------- */
-  .btn{
+  /* Remove the little triangle pointer entirely */
+  .spot-motto::before{
+    content: none;                      /* NEW */
+  }
+  .spot-motto:hover::after, .spot-motto:hover::before,
+  .spot-motto:focus::after, .spot-motto:focus::before{ opacity: 1; }
+  .spot-motto:hover::after, .spot-motto:focus::after{ transform: translateY(-50%); }
+
+  /* Auto-show helper class; we don’t use animation if user prefers reduced motion */
+  @media (prefers-reduced-motion: no-preference){
+    .spot-motto.show::after, .spot-motto.show::before { opacity: 1; }
+  }
+
+  /* ---------- Social links ---------- */
+  .social{
     position: fixed;
-    left: 50%;
-    bottom: calc(var(--padY) + 28px);
-    transform: translateX(-50%);
-    background: #7aa2ff; color: #0b1020; font-weight: 700;
-    padding: 12px 16px; border-radius: 12px; text-decoration: none;
-    box-shadow: 0 10px 24px rgba(0,0,0,0.35);
+    right: calc(var(--padX));
+    bottom: calc(var(--padY));
+    display: flex;
+    gap: 14px;
+    align-items: center;
   }
-  .btn:hover { filter: brightness(1.05); }
-  .btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; border-radius: 12px; }
+  .social a{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px; height: 42px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.1);
+    text-decoration: none;
+    outline: none;
+  }
+  .social a:hover { background: rgba(255,255,255,.18); }
+  .social a:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+  .social svg{
+    width: 22px; height: 22px;
+    fill: #e8ecff;
+    display: block;
+  }
 </style>
 </head>
 
 <body>
 
-  <!-- Stage wraps image + overlay; it resizes with the window and honors padding -->
+  <!-- Stage wraps image + overlay -->
   <div class="stage" id="stage">
-    <!-- Your image (spaces in file name are fine) -->
     <img class="bg" id="bg"
-         src="assets/ABHLSD Italics - No WP.jpg"
-         alt="ABHLSD artwork" />
+         src="assets/ABHLSD-OG.jpg"
+         alt="ABHLSD lettering on deep blue background" />
 
-    <!-- Hotspot overlay: JS will size/position this to the drawn image rect -->
-    <div class="hotspots" id="hot" ariaassets/-label="Letter tooltips">
-      <button type="button" class="spot spot-a"     data-tt="Aussie" aria-label="Aussie"></button>
-      <button type="button" class="spot spot-b"     data-tt="Bear"   aria-label="Bear"></button>
-      <button type="button" class="spot spot-heart" data-tt="Loves"  aria-label="Loves"></button>
-      <button type="button" class="spot spot-l"     data-tt="Lady"   aria-label="Lady"></button>
-      <button type="button" class="spot spot-s"     data-tt="Star"   aria-label="Star"></button>
-      <button type="button" class="spot spot-d"     data-tt="Dust"   aria-label="Dust"></button>
+    <!-- Hotspot overlay (positions set in JS) -->
+    <div class="hotspots" id="hot" aria-label="Letter tooltips">
+      <button type="button" class="spot spot-a"     data-tt="Advanced"         aria-label="Advanced"></button>
+      <button type="button" class="spot spot-b"     data-tt="Business"         aria-label="Business"></button>
+      <button type="button" class="spot spot-heart" data-tt="Heuristics"       aria-label="Heuristics"></button>
+      <button type="button" class="spot spot-l"     data-tt="for Lifecycle"    aria-label="for Lifecycle"></button>
+      <button type="button" class="spot spot-s"     data-tt="and System"       aria-label="and System"></button>
+      <button type="button" class="spot spot-d"     data-tt="Design"           aria-label="Design"></button>
+
+      <!-- SPECIAL: ABHLSD.com area uses its own rollover rule and links to the homepage -->
+      <a class="spot spot-motto"
+         href="https://abhlsd.com/"
+         target="_self" rel="noopener"
+         data-tt="Creating Better Solutions for Everyone Forever"
+         aria-label="ABHLSD.com – motto"></a>
     </div>
   </div>
 
-  <!-- Link to your Mars–Venus tool (relative path) -->
-  <a class="btn" href="./mars-venus/index.html">Mars–Venus Separation</a>
+  <!-- Social links (bottom-right) -->
+  <nav class="social" aria-label="Business profiles">
+    <a href="https://www.linkedin.com/in/martinmusgrave" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn: Martin Musgrave">
+      <!-- LinkedIn icon -->
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.98 3.5C4.98 4.88 3.86 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.5 8h4V24h-4V8zm7.5 0h3.8v2.2h.05c.53-1 1.84-2.2 3.79-2.2 4.05 0 4.8 2.66 4.8 6.1V24h-4v-7.1c0-1.7-.03-3.9-2.38-3.9-2.38 0-2.75 1.86-2.75 3.78V24h-4V8z"/></svg>
+    </a>
+    <a href="https://x.com/M_Musgrave_Bus" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter): @M_Musgrave_Bus">
+      <!-- X/Twitter icon -->
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2H21.5l-7.5 8.57L23.5 22h-7.28l-5.69-6.77L3.31 22H0l8.24-9.41L.5 2h7.28l5.15 6.12L18.244 2Zm-1.276 18h2.135L7.116 4H4.981L16.968 20Z"/></svg>
+    </a>
+  </nav>
+
+<!-- Optional button (kept commented) -->
+<!-- <a class="btn" href="./mars-venus/index.html">Mars–Venus Separation</a> -->
 
 <script>
 /* Measure the image's drawn rectangle (with object-fit: contain) and
@@ -231,44 +268,39 @@
   const hot   = document.getElementById('hot');
 
   function layout(){
-    // Stage size in CSS pixels
     const sw = stage.clientWidth;
     const sh = stage.clientHeight;
 
-    // Image intrinsic size
     const iw = img.naturalWidth;
     const ih = img.naturalHeight;
-    if (!iw || !ih) return;  // image not loaded yet
+    if (!iw || !ih) return;
 
-    // Calculate drawn size for object-fit: contain
     const scale = Math.min(sw / iw, sh / ih);
     const drawW = iw * scale;
     const drawH = ih * scale;
     const offX  = (sw - drawW) / 2;
     const offY  = (sh - drawH) / 2;
 
-    // Place the overlay to exactly cover the drawn image area
     hot.style.left   = offX + 'px';
     hot.style.top    = offY + 'px';
     hot.style.width  = drawW + 'px';
     hot.style.height = drawH + 'px';
   }
 
-  // When the image loads (or if it’s already cached), run layout
   if (img.complete) layout();
   else img.addEventListener('load', layout);
 
-  // Recompute on window resize and orientation changes
   window.addEventListener('resize', layout);
   window.addEventListener('orientationchange', layout);
 })();
 </script>
 
 <script>
+/* Click-to-toggle for tooltips on touch devices (letters only).
+   The motto link has its own class and is excluded from toggling. */
 (function(){
-  const spots = Array.from(document.querySelectorAll('.spot'));
+  const spots = Array.from(document.querySelectorAll('.spot:not(.spot-motto)'));
 
-  // Toggle on click/tap; close siblings
   spots.forEach(btn=>{
     btn.setAttribute('aria-expanded','false');
     btn.addEventListener('click', (e)=>{
@@ -279,17 +311,42 @@
     });
   });
 
-  // Click outside closes any open tooltip
   document.addEventListener('click', ()=>{
     spots.forEach(b => { b.classList.remove('active'); b.setAttribute('aria-expanded','false'); });
   });
 
-  // ESC closes too (keyboard/screenreader friendly)
   document.addEventListener('keydown', (e)=>{
     if (e.key === 'Escape'){
       spots.forEach(b => { b.classList.remove('active'); b.setAttribute('aria-expanded','false'); });
     }
   });
+})();
+</script>
+
+<script>
+/* Auto-show the motto on load (briefly), respecting reduced motion. */
+(function(){
+  const motto = document.querySelector('.spot-motto');
+  if (!motto) return;
+
+  function showOnce(){
+    // Respect users who prefer reduced motion/attention
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    motto.classList.add('show');
+    if (!reduce){
+      setTimeout(()=> motto.classList.remove('show'), 2500);
+    } else {
+      // Still remove after a bit so it doesn't linger forever
+      setTimeout(()=> motto.classList.remove('show'), 2000);
+    }
+  }
+
+  // After first layout/paint
+  if (document.readyState === 'complete' || document.readyState === 'interactive'){
+    requestAnimationFrame(showOnce);
+  } else {
+    document.addEventListener('DOMContentLoaded', ()=> requestAnimationFrame(showOnce));
+  }
 })();
 </script>
 
