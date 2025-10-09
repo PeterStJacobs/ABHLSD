@@ -215,6 +215,26 @@
     fill: #e8ecff;
     display: block;
   }
+
+  /* ---------- Mobile motto layout fix ---------- */
+  @media (max-width: 700px) {
+  .spot-motto::after {
+    left: 0;                      /* reset horizontal anchor */
+    top: 120%;                    /* push below the ABHLSD.com area */
+    transform: none;              /* no translate adjustments */
+    text-align: center;           /* center-align text */
+    white-space: normal;          /* wrap naturally */
+    max-width: 90vw;              /* stay inside viewport */
+    font-size: clamp(12px, 4vw, 16px);
+    line-height: 1.3;
+  }
+
+  /* hide the little pointer triangle, if any */
+  .spot-motto::before {
+    content: none;
+  }
+}
+
 </style>
 </head>
 
@@ -352,3 +372,4 @@
 
 </body>
 </html>
+
