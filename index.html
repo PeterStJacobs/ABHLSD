@@ -47,6 +47,40 @@
     --pageBg: #002D89;
   }
 
+  /* ---------- Top navigation ---------- */
+  .top-nav{
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 24px;
+    padding: 10px 32px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.35), transparent);
+    box-sizing: border-box;
+  }
+  .top-nav a{
+    font-size: 15px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: #e8ecff;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(4px);
+  }
+  .top-nav a:hover{
+    background: rgba(255,255,255,0.12);
+  }
+  .top-nav a:focus-visible{
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+  }
+
   /* ---------- Stage holds both the image and overlay ---------- */
   .stage{
     position: fixed;
@@ -158,32 +192,28 @@
     top: 50%;
     left: calc(100% + 12px);
     transform: translateY(-50%);
-    /* background: #081f5c;            <-- remove */
-    background: transparent;           /* NEW: float text, no panel */
+    background: transparent;           /* float text, no panel */
     color: #ffe600;
-    padding: 0;                         /* NEW: no padding since no panel */
-    border-radius: 0;                   /* NEW */
+    padding: 0;
+    border-radius: 0;
     font-family: "Calibri";
     font-size: clamp(14px, 2.2vw, 22px);
     white-space: nowrap;
     line-height: 1.2;
-    /* box-shadow: 0 8px 20px rgba(0,0,0,.35);  <-- remove */
-    text-shadow: 0 0 6px rgba(0,0,0,.25);      /* NEW: gentle legibility lift */
+    text-shadow: 0 0 6px rgba(0,0,0,.25);
     opacity: 0;
     pointer-events: none;
     transition: opacity .25s ease, transform .25s ease;
     max-width: none;
   }
 
-  /* Remove the little triangle pointer entirely */
   .spot-motto::before{
-    content: none;                      /* NEW */
+    content: none;
   }
   .spot-motto:hover::after, .spot-motto:hover::before,
   .spot-motto:focus::after, .spot-motto:focus::before{ opacity: 1; }
   .spot-motto:hover::after, .spot-motto:focus::after{ transform: translateY(-50%); }
 
-  /* Auto-show helper class; we don’t use animation if user prefers reduced motion */
   @media (prefers-reduced-motion: no-preference){
     .spot-motto.show::after, .spot-motto.show::before { opacity: 1; }
   }
@@ -218,27 +248,37 @@
 
   /* ---------- Mobile motto layout fix ---------- */
   @media (max-width: 700px) {
-  .spot-motto::after {
-    left: 0;                      /* reset horizontal anchor */
-    top: 120%;                    /* push below the ABHLSD.com area */
-    transform: none;              /* no translate adjustments */
-    text-align: center;           /* center-align text */
-    white-space: normal;          /* wrap naturally */
-    max-width: 90vw;              /* stay inside viewport */
-    font-size: clamp(12px, 4vw, 16px);
-    line-height: 1.3;
-  }
+    .top-nav{
+      justify-content: center;
+      padding: 8px 16px;
+      gap: 16px;
+    }
 
-  /* hide the little pointer triangle, if any */
-  .spot-motto::before {
-    content: none;
-  }
-}
+    .spot-motto::after {
+      left: 0;
+      top: 120%;
+      transform: none;
+      text-align: center;
+      white-space: normal;
+      max-width: 90vw;
+      font-size: clamp(12px, 4vw, 16px);
+      line-height: 1.3;
+    }
 
+    .spot-motto::before {
+      content: none;
+    }
+  }
 </style>
 </head>
 
 <body>
+
+  <!-- Top navigation -->
+  <nav class="top-nav" aria-label="Main navigation">
+    <a href="/">Home</a>
+    <a href="how-we-work.html">How We Work</a>
+  </nav>
 
   <!-- Stage wraps image + overlay -->
   <div class="stage" id="stage">
@@ -350,18 +390,15 @@
   if (!motto) return;
 
   function showOnce(){
-    // Respect users who prefer reduced motion/attention
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     motto.classList.add('show');
     if (!reduce){
       setTimeout(()=> motto.classList.remove('show'), 2500);
     } else {
-      // Still remove after a bit so it doesn't linger forever
       setTimeout(()=> motto.classList.remove('show'), 2000);
     }
   }
 
-  // After first layout/paint
   if (document.readyState === 'complete' || document.readyState === 'interactive'){
     requestAnimationFrame(showOnce);
   } else {
@@ -372,4 +409,3 @@
 
 </body>
 </html>
-
